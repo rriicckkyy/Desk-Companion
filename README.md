@@ -5,7 +5,7 @@ media playback, system volume and microphone mute, with the current song shown o
 
 The project has two parts that talk to each other over USB serial:
 
-- **Firmware** (`firmware/`) – runs on an Arduino Uno, reads the inputs and drives the displays.
+- **Firmware** (`src/`) – runs on an Arduino Uno, reads the inputs and drives the displays.
 - **PC helper** (`pc-helper/`) – a Python program on Windows that turns the Arduino's messages
   into actions and sends song info back.
 
@@ -44,7 +44,7 @@ Full pin assignment and breadboard positions: [docs/wiring.md](docs/wiring.md)
 
 Requires [VS Code](https://code.visualstudio.com/) with the **PlatformIO IDE** extension.
 
-1. Open the repo's root folder in VS Code (*File → Open Folder*). `platformio.ini` sits there and points PlatformIO to the `firmware` folder.
+1. Open the repo's root folder in VS Code (*File → Open Folder*). PlatformIO detects the project from `platformio.ini` and builds the code in `src/`.
 2. Click **Upload** (→) in the blue status bar. PlatformIO installs the U8g2 library automatically.
 3. The OLED shows *Waiting for PC...* until the helper is running.
 
@@ -86,7 +86,7 @@ it falls back to *Waiting for PC...*.
 ```
 desk-companion/
 ├── platformio.ini
-├── firmware/
+├── src/
 │   └── main.cpp
 ├── pc-helper/
 │   ├── desk_helper.py
