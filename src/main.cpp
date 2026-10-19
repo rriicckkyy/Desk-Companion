@@ -1,6 +1,6 @@
 // Desk Companion - Arduino firmware
 // Inputs:  touch (tap = play/pause, hold = mic mute), 2 buttons (prev/next), knob (volume 0-9)
-// Outputs: OLED (song, time, status), 7-segment (volume), LED (mic muted)
+// Outputs: OLED (song with scrolling title, time, status), 7-segment (volume), LED (mic muted)
 //
 // Serial protocol (9600 baud, one message per line):
 //   Arduino -> PC:  HELLO, PLAY_PAUSE, MUTE, PREV, NEXT, VOL:<0-9>
@@ -30,6 +30,15 @@ const byte DIGITS[10] = {
 const unsigned long HOLD_MS       = 600;   // touch longer than this = mute instead of play/pause
 const unsigned long DEBOUNCE_MS   = 30;
 const unsigned long PC_TIMEOUT_MS = 5000;  // no message for this long = "Waiting for PC"
+
+// ---------- Title scrolling ----------
+const unsigned long SCROLL_STEP_MS  = 40;    // time per 1-pixel step (lower = faster)
+const unsigned long SCROLL_PAUSE_MS = 1500;  // pause at the start of each round
+const int SCROLL_GAP = 30;                   // pixels between the end and the next copy
+
+int titleWidth   = 0;
+int scrollOffset = 0;
+unsigned long scrollTimer = 0;
 
 // ---------- State received from the PC ----------
 char title[41]     = "";
@@ -134,6 +143,28 @@ void handleButtons() {
   }
 }
 
+// ---------- Title scrolling ----------
+void resetScroll() {
+  display.setFont(u8g2_font_7x14B_tr);
+  titleWidth = display.getStrWidth(title);
+  scrollOffset = 0;
+  scrollTimer = millis();
+}
+
+void handleScroll() {
+  if (titleWidth <= 128) return;  // fits on screen, no scrolling
+
+  unsigned long wait = (scrollOffset == 0) ? SCROLL_PAUSE_MS : SCROLL_STEP_MS;
+  if (millis() - scrollTimer < wait) return;
+
+  scrollTimer = millis();
+  scrollOffset++;
+  if (scrollOffset >= titleWidth + SCROLL_GAP) {
+    scrollOffset = 0;  // one round done, start over (with pause)
+  }
+  needsRedraw = true;
+}
+
 // ---------- Messages from the PC ----------
 // copies src into dest; returns true if the content changed
 bool setText(char* dest, size_t size, const char* src) {
@@ -155,7 +186,10 @@ void processLine(char* line) {
       *sep = '\0';
       newArtist = sep + 1;
     }
-    if (setText(title, sizeof(title), data)) needsRedraw = true;
+    if (setText(title, sizeof(title), data)) {
+      resetScroll();
+      needsRedraw = true;
+    }
     if (setText(artist, sizeof(artist), newArtist)) needsRedraw = true;
   } else if (strncmp(line, "TIME:", 5) == 0) {
     if (setText(clockText, sizeof(clockText), line + 5)) needsRedraw = true;
@@ -212,7 +246,15 @@ void drawScreen(bool connected) {
 
       // song
       display.setFont(u8g2_font_7x14B_tr);
-      display.drawStr(0, 31, title[0] ? title : "Nothing playing");
+      if (!title[0]) {
+        display.drawStr(0, 31, "Nothing playing");
+      } else if (titleWidth <= 128) {
+        display.drawStr(0, 31, title);
+      } else {
+        int x = -scrollOffset;
+        display.drawStr(x, 31, title);
+        display.drawStr(x + titleWidth + SCROLL_GAP, 31, title);
+      }
       display.setFont(u8g2_font_6x10_tr);
       display.drawStr(0, 45, artist);
     }
@@ -249,6 +291,9 @@ void loop() {
   handleKnob();
 
   bool connected = pcSeen && millis() - lastPcMessage < PC_TIMEOUT_MS;
+  if (connected) {
+    handleScroll();
+  }
   if (connected != wasConnected) {
     wasConnected = connected;
     needsRedraw = true;
