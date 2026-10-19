@@ -17,7 +17,7 @@ The project has two parts that talk to each other over USB serial:
 | Touch sensor, hold | Mute / unmute the microphone |
 | Two push buttons | Previous / next track |
 | Potentiometer | System volume in 10 steps |
-| 1.3" OLED | Song title, artist, play status, clock, volume bar |
+| 1.3" OLED | Song title (scrolls when too long), artist, play status, clock, volume bar |
 | 7-segment display | Current volume level (0–9) |
 | Red LED | Lights up while the microphone is muted |
 
@@ -44,7 +44,7 @@ Full pin assignment and breadboard positions: [docs/wiring.md](docs/wiring.md)
 
 Requires [VS Code](https://code.visualstudio.com/) with the **PlatformIO IDE** extension.
 
-1. Open the `firmware` folder in VS Code (*File → Open Folder*).
+1. Open the repo's root folder in VS Code (*File → Open Folder*). `platformio.ini` sits there and points PlatformIO to the `firmware` folder.
 2. Click **Upload** (→) in the blue status bar. PlatformIO installs the U8g2 library automatically.
 3. The OLED shows *Waiting for PC...* until the helper is running.
 
@@ -85,9 +85,9 @@ it falls back to *Waiting for PC...*.
 
 ```
 desk-companion/
+├── platformio.ini
 ├── firmware/
-│   ├── platformio.ini
-│   └── src/main.cpp
+│   └── main.cpp
 ├── pc-helper/
 │   ├── desk_helper.py
 │   └── requirements.txt
