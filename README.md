@@ -30,7 +30,7 @@ so the LED stays correct even when you mute with the mouse.
 - Arduino Uno (DFRduino UNO R3)
 - Waveshare 1.3" OLED Module (C) – SH1107, 64×128, SPI
 - DFRobot Gravity Touch Sensor V2
-- F5101BH single-digit 7-segment display (common anode) + 7 resistors (220 Ω – 1 kΩ)
+- F5101BH single-digit 8-segment display (common anode) + 7 resistors (220 Ω – 1 kΩ)
 - 10 kΩ potentiometer
 - 2 push buttons
 - Red LED + 1 resistor

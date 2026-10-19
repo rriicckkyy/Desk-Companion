@@ -35,7 +35,7 @@ Pin 12 is reserved by hardware SPI and stays unused.
 | Red (VCC) | + rail |
 | Black (GND) | − rail |
 
-## 7-segment display – F5101BH (common anode)
+## 8-segment display – F5101BH (common anode)
 
 Placed across the center gap in rows 10–14. Each segment goes through its own
 resistor (220 Ω – 1 kΩ) to the Arduino. One COM pin goes to the + rail, the
